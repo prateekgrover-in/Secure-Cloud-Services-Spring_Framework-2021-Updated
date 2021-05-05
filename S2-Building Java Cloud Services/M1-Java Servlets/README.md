@@ -73,3 +73,7 @@ This module contains 6 videos:
 - Very simple servlet, but it is imaginable it would be a nightmare incase the servlet is complex and has a lot of objects and classes.
 - We only would like to focus on the logic.
 
+4. Video Servlet Code Walkthrough (https://www.youtube.com/watch?v=aV8ATeXykjo&list=PLyUlngzGzkztgTizxM6_zqiw8sRj7vBm0&index=22)
+
+- Uses code provided in examples/2-VideoServlet, walks through the implementation.
+
