@@ -2,11 +2,11 @@ This repository contains supoprting material for Coursera Course : Building Clou
 
 The complete course is divided into 6 Sections: 
 
-Section 1: Talking to the Cloud with HTTP
-Section 2: Building Java Cloud Services
-Section 3: Building Database-driven Java Cloud Services
-Section 4: Restricting Service Access with User Accounts
-Section 5: Deploying to the Cloud Scaling
-Section 6: Patterns and Frameworks for Concurrent and Networked Server Software
+* Section 1: Talking to the Cloud with HTTP
+* Section 2: Building Java Cloud Services
+* Section 3: Building Database-driven Java Cloud Services
+* Section 4: Restricting Service Access with User Accounts
+* Section 5: Deploying to the Cloud Scaling
+* Section 6: Patterns and Frameworks for Concurrent and Networked Server Software
 
 Section-wise Directories provide materials for each of the sections.
