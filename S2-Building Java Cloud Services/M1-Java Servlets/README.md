@@ -20,6 +20,7 @@ This module contains 6 videos:
 
 - doGet() method implementation:
 
+'''
      private List<Video> videoList = new ArrayList<Video>();
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -35,6 +36,7 @@ This module contains 6 videos:
                 sendToClient.write(v.getName() + " : " + v.getURL() + "\n");
             }
         }
+'''
 
 - doGet() Implementation is pretty straightforward
 
