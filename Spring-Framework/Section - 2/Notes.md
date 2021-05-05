@@ -1,0 +1,319 @@
+
+**** PROTOCOL LAYERING & APPLICATION DESIGN:
+
+1. REST, SOAP webservices are layered on HTTP protocol.
+
+
+*** HTTP POLLING:
+1. HTTP is client Driven protocol i.e. Client is initiating the communication. Client sends a request and server responded.
+2. Server received updates but can not send to client until client requested. Client needs to decide how frequent request needs to send to server for update.
+3. One of the method is - Polling. Client requests server for an update at every T seconds (regular interval) . Even if there is no update, server allocated the
+    resources, check for the update and sends the "no update"  response.
+4. If client does not receive any update in T seconds then client exponentially increase the time gap between two requests to 2T, 4T, 8T etc.
+
+
+***** WEB SOCKET:
+1. Another approach for Client - server connection is "Web Socket".
+2. Here, Client sends request to the server and established Web socket. Web socket is bi-direction communication bridge i.e. either client or server
+    sends the data to other party. Thus, Web sockets are not completely client driven but both the parties can initiate the communication.
+3. One of the issue is when client lost the internet connectivity then web socket connection went down. Client needs to send request to server
+    and establish the web socket connection. Client should have mechanism to reestablish the socket connection at the time of disconnection
+    
+    
+    **** JAVA SERVLETS:
+1. Java technology which handles the incoming web requests is "Servlets".
+2. When browser makes HTTP requests, it goes to "Web Container" which contains one or more Java servlets.
+    Based on the type of request one Java servlets handles the request.
+3. Servlets has methods like "doGet()", "doPost()", "doPut()" and "doDelete()". Based on the type of
+    request method, appropriate servlet method is called.
+4. Based on the request which servlets to call is identified by "web.xml" file.
+
+**** Video Servlet Operations code:
+1. User is trying to upload a video on the server. Built the servlets that allows this functionality.
+2. Create a simple class "Video.java". This class contains video metadata such as "Name", "URL" and
+    "videoDuration". I generated parameterized constructor and getters and setters method.
+3. Create a class "VideoServlets" which extends the "HTTPServlets" class. This class contains
+    "doGet()", "doPost()" methods to define the logic of the code.
+    -> doGet and doPost methods called based on the type of web request. Based on web request, which
+    method needs to call can be defined in "Web.xml" file.
+    -> [for eg. To handle GET type of request, web.xml file suggest to use "doGet()". ]
+
+[i.] doGet() method implementation:
+
+     private List<Video> videoList = new ArrayList<Video>();
+
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+            /**
+             * Set content type header so client can properly and securely display the content that I send back
+             */
+            resp.setContentType("text/plain");
+
+            /**
+             * This PrintWriter allows us to write data to HTTP response body that is going to be sent to the client.
+             */
+            PrintWriter sendToClient = resp.getWriter();
+
+            /**
+             * Loop through all the stored video in ArrayList and print their name and URL into HTTP response body.
+             */
+            for(Video v : videoList){
+                sendToClient.write(v.getName() + " : " + v.getURL() + "\n");
+            }
+
+        }
+
+[ii] doPost() implementation:
+
+        @Override
+            protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+                /**
+                 * 1. Extract the HTTP request param that are wxpected from URL Query String or URL encoded form body.
+                 */
+                String name = req.getParameter("name");
+                String URL = req.getParameter("URL");
+                String durationStr = req.getParameter("duration");
+
+                /**
+                 * Convert string duration into number.
+                 */
+                long durationVideo = -1;
+                durationVideo = Long.parseLong(durationStr);
+
+                /**
+                 * Set the content type Header so Client's browser know the format of the data and how to interpret it.
+                 */
+                resp.setContentType("text/plain");
+
+                /**
+                 * Validate the query parameters received from the URL. If there is invalid data in request param then Server should send
+                 * HTTP 400 Bad Request error to the client.
+                 */
+                if(name == null || URL == null || durationStr == null || name.trim().length()<1 || URL.trim().length()<1 || durationStr.trim().length()<1){
+                    resp.sendError(400,"Invalid Name, URL or Video duration");
+                }
+                else{
+                    /**
+                     * If all the string param are valid then create an object of class Video with name, URL and duration.
+                     */
+                    Video v = new Video("Shiv Dhun","www.youtube.com/shivdhun",120);
+                    videoList.add(v);
+                }
+
+            }//end of post method.
+
+================================================================================================================
+================================================================================================================
+
+**** SPRING DISPATCHER SERVLETS:
+
+1. In normal Java Servlets the process flow to handle request is:
+
+    doGet(Request){
+        i. Extract the param from Request URL.
+        ii. Validate the param. [Not null, not invalid]
+        iii. construct java obj using these request param.
+        iv. Logic to handle request.
+    }
+
+2. In any Web Request in Java Servlet, I need to follow steps i,ii,iii. Which is unnecessary operations
+    to follow each time. These code is called Boiler Plate code.
+
+3. One of the solutions to remove boiler plate code is use of Spring framework. Spring Framework has
+    specialized servlets=> "DispatcherServlets" whose operation is similar to Java Servlets.
+4. DispatcherServlets has "Controller" which handles the request. DispatcherServlets remove the boiler
+    plate code.
+
+================================================================================================================
+================================================================================================================
+
+**** @ResponseBody:
+
+1. Usually in API, Dev needs to send message back. For eg of GET or POST request Dev can send a confirmation String message.
+2. In other cases, Dev returns object of the class. In assignment 1, Dev is responding the object of the "Video" class.
+3. Now, Dev needs to have an implementation of converting the video class object into HTTP Response that User can actually see.
+4. This conversion Object of Java class into HTTP Response can be achieved by using "@ResponseBody" annotation.
+
+For Eg:
+
+     @RequestMapping(value = "/video", method = RequestMethod.GET)
+     public @ResponseBody Video getVideo(Video v){
+        //.... line of code
+        return new Video();     //Returning the object of Video class.
+     }
+
+================================================================================================================
+================================================================================================================
+
+**** Jackson - Convert JSON Payload into Java Object vise versa:
+
+1. In RESTFul API, JSON Payload is mapped into Java Object. This can be achieve by Jackson library.
+2. For Eg, Dev created a class "Video" with "private" param as name, URL, duration ect. Dev created getter & Setter property.
+
+    public class Video {
+        private String name;
+        private String URL;
+        private long duration;
+
+        public Video(String name, String URL, long duration) {
+            this.name = name;
+            this.URL = URL;
+            this.duration = duration;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getURL() {
+            return URL;
+        }
+
+        public void setURL(String URL) {
+            this.URL = URL;
+        }
+
+        public long getDuration() {
+            return duration;
+        }
+
+        public void setDuration(long duration) {
+            this.duration = duration;
+        }
+
+
+3. In Rest API, Dev received JSON payload with name, URL and duration.
+
+    "{
+        "name" : "jacksonVideo",
+        "URL" : "http://localhost:8080/getJackson",
+        "duration" : 12345
+    }"
+
+4. API received JSON payload and convert / mapped into object of Video class. This is done by Jackson library.
+
+    public Video getJacksonVideo(@RequestBody Video v)
+    {
+        Video newVideo = new Video(v.getName(), v.getURL(), v.getDuration());
+        return newVideo;
+    }
+
+5. Jackson takes the JSON payload and mapped each attribute with appropriate Setter method.
+For eg:
+        Jackson takes "name" param and mapped the value with "setName()" method of Video class.
+        Similarly, all the param mapped with their appropriate SetterMethod.
+
+6. If Dev wants Jackson to ignore some parameters and not convert them into Object then use @JsonIgnore.
+For Eg:
+        @JsonIgnore
+        public void setDuration(long duration){
+            this.duration = duration
+        }
+
+-> Here, SetDuration method is annotated as @JsonIgnore which tells Jackson lib to not convert JSON param into class object.
+
+================================================================================================================
+================================================================================================================
+
+**** Spring Dependency Injection and @Autowired:
+
+1. I created a Controller class "UserController" and Service package includes interface "UserService" which has two abstract
+methods public String getUserName();
+        public int getUserAge();.
+
+2. In Entity package, I have a User class with private name, age and city properties with constructor, getters and setters.
+
+3. Dependency Injection: Spring provides object of the class automatically when required. This is the concept of
+    Inversion of Control.
+
+For eg:
+    -> I need object of UserService in a controller class. I need to annotated with "@Autowired" annotation.
+
+        @RestController
+        public class UserController {
+
+            @Autowired
+            private UserService userService;
+
+        }
+
+-> I created a "UserServiceImpl" class and implements UserService interface. This class implemented abstract methods.
+
+    @Service
+    public class UserServiceImpl implements UserService{
+
+        @Override
+        public String getUserName() {
+            return "Sagar";
+        }
+
+        @Override
+        public int getUserAge() {
+            return 10;
+        }
+    }
+
+-> Class whose object automatically create (@Autowired) needs to annotated with "@Service" annotation. Here, "UserServiceImpl" class
+   is annotated as @Service annotation.
+
+-> Now, I can use "userService" object of interface "UserService" to call "getUserName()" and "getUserAge()" mwthods.
+Here, UserService interface has just one class which implements this interface and methods from "UserServiceImpl" class
+will invoke.
+
+==> Now, if "UserService" interface is been implements by two classes then I need to specify which class method needs to call.
+
+For Eg: I created below class and implements "UserService" interface.
+
+@Service
+public class secondUserServiceImpl implements UserService{
+
+
+    @Override
+    public String getUserName() {
+        return "Second class implements UserService";
+    }
+
+    @Override
+    public int getUserAge() {
+        return 40;
+    }
+}
+
+-> Now, if I ran the same code then compiler throw below error saying there are two class that "UserService" interface
+    implemented by two classes. So @Autowired object of UserService inteface creates ambiguity.[private UserService userService;]
+
+    Field userService in com.onslearning.cloudservice.Controller.UserController required a single bean, but 2 were found:
+
+==> The possible ways to resolve this ambiguity:
+
+1. @Qualifier("Class-name") : This annotation specify which class needs to call if case of multiple available classes.
+
+For Eg:
+        @Qualifier("secondUserServiceImpl")
+        @Autowired
+        private UserService userService;
+
+2. @Primary : Annotate any one class as a @Primary will receive a preference over other classes at the time of
+    multiple possible classes available.
+
+        @Primary
+        @Service
+        public class secondUserServiceImpl implements UserService{
+
+================================================================================================================
+================================================================================================================
+
+**** Spring Configuration Annotation:
+
+1. @EnableAutoConfiguration: This annotation will tell Spring to check for all @Autowired annotated elements.
+2. @Configuration :
+3. @ComponentScan({"package-name1, package-name2"}): This annotation tells spring to scan the provided package to look
+    for implemented methods, @Autowired annotation.
+4. @Service : Combination of @ComponentScan and @Configuration.     
+
