@@ -20,7 +20,7 @@ This module contains 6 videos:
 
 - doGet() method implementation:
 
-'''
+```java
      private List<Video> videoList = new ArrayList<Video>();
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -36,12 +36,12 @@ This module contains 6 videos:
                 sendToClient.write(v.getName() + " : " + v.getURL() + "\n");
             }
         }
-'''
+```
 
 - doGet() Implementation is pretty straightforward
 
 - doPost() implementation:
-
+```java
         @Override
             protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
@@ -70,7 +70,7 @@ This module contains 6 videos:
                 }
 
             }
-            
+```
 - Involves lots of overhead and error-check, extract and convert them to correct types.
 - Very simple servlet, but it is imaginable it would be a nightmare incase the servlet is complex and has a lot of objects and classes.
 - We only would like to focus on the logic.
