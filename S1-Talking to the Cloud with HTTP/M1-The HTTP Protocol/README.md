@@ -51,6 +51,7 @@ This module consists of 13 Videos:
     iv. DELETE  :   Delete operation.
 
 
+
 7. HTTP Request Anatomy (4:40) (https://www.youtube.com/watch?v=DvQp7hJk0TA&list=PLyUlngzGzkztgTizxM6_zqiw8sRj7vBm0&index=7)
 
 Request Line (Mandatory)
@@ -72,6 +73,7 @@ Body (Mandatory in cases where Required)
 - Body includes JSON payload. for eg, at the time of user sign up to a website, User information is passed in the form of JSON Payload to the server.
 
 
+
 8. URLs & Query Parameters (8:45) (https://www.youtube.com/watch?v=7D0031eA-ZQ&list=PLyUlngzGzkztgTizxM6_zqiw8sRj7vBm0&index=8)
 
 - Uniform Resource Locator (http://host::port/path).
@@ -79,6 +81,7 @@ Body (Mandatory in cases where Required)
 - Here, anything after "?" is called Query parameters. key1 = city, value1 = denver, key2 = age,  value2 = 25. & defined for multiple key value pairs.
 - These allow passing extra information with our request. We cannot have certain special characters in these query parameters, as the server would not be able decode these values
 - URL Encoding is used to pass special characters with getting in specific format for Server for it to be able to understand the queries.
+
 
 
 9. Mime Types & Content Type Headers (7:54) (https://www.youtube.com/watch?v=FBkZ2TJZZUY&list=PLyUlngzGzkztgTizxM6_zqiw8sRj7vBm0&index=9)
@@ -89,5 +92,41 @@ Body (Mandatory in cases where Required)
 - These types allow server to know how to interpret the information. "Content-type" header provides MIME type and therefore facilitates the communication of response and requests. 
 
 
+
 10. Request Body Encoding (5:55) (https://www.youtube.com/watch?v=zclWzlAnRwA&list=PLyUlngzGzkztgTizxM6_zqiw8sRj7vBm0&index=10)
-- 
+
+- There are two ways, user can sends data through body.
+    i. Just like URL Encoding, pass key, value pairs in the body. Eg: /urlencoded?firstname=Geeks&lastname=forGeeks
+    ii. Multipart: provide various parts in URL. Eg: /multipart?firstname=Geeks%20for%20&lastname=Geeks
+- When sending large file or binary data to server, use multipart method, when sending small amount of data, use URL encoding method.
+- URL encoding is efficient when sending small amount of data. (key value pair)
+
+
+
+11. HTTP Response Anatomy (5:36) (https://www.youtube.com/watch?v=jh4Gaq8pgU0&list=PLyUlngzGzkztgTizxM6_zqiw8sRj7vBm0&index=11)
+
+- When client sends request, server takes appropriate action to find resources.
+- Server needs to respond with message whether the requested resources is found, Or the resource is moved or server is unable to process the request.
+- Server response line contains
+        i. Numerical status code (200 - OK, 400 - error, 500 - server down)
+        ii. Phrase to describe the message.
+- If the resource is found then Server sends Header and Body. Body contains the resource in JSON,XML format. Header contains meta data. Header provide "Content-type". (Values could be "application/json"). 
+
+
+
+12. HTTP Response Codes (7:22) (https://www.youtube.com/watch?v=qcsz_-WTVn8&list=PLyUlngzGzkztgTizxM6_zqiw8sRj7vBm0&index=12)
+
+- 1XX : Information. (Provides information as a response from server)
+- 2XX : Success. (200 - OK. Server handled the request successfully.)
+- 3XX : Redirection. (Page/Resource that user is looking has been moved to another location.)
+- 4XX : Client Error. (404 - Page/Resource not found. Invalid request / URL)
+- 5XX : Server Error. (500 - Server is unable to handle the request)
+
+
+
+13. Cookies (5:31) (https://www.youtube.com/watch?v=tS6kH42y9Mk&list=PLyUlngzGzkztgTizxM6_zqiw8sRj7vBm0&index=13)
+
+- Cookies are the small code that server sends to clients computer along with the response. They usually have an expiration date, could not consider valid session. Sometimes, encrypted cookies are sent, to protect sensitive information.
+- This program keeps sending the User activity of the website to the server for better user experience.
+- Cookies saves client details so client does not need to log in again, sends promotions based on search.
+- Usually, cookies tracks client activities on the same website and not the other activities due to privacy issues. But, nowadays, cross platform tracking is performed. So client search camera on amazon then Facebook, instagram shows advertisement on camera that day.
