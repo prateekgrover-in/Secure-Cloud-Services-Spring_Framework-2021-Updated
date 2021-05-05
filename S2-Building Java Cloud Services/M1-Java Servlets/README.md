@@ -77,3 +77,13 @@ This module contains 6 videos:
 
 - Uses code provided in examples/2-VideoServlet, walks through the implementation.
 
+5. Video Servlet Test Code Walkthrough (https://www.youtube.com/watch?v=glU3AN4EXO0&list=PLyUlngzGzkztgTizxM6_zqiw8sRj7vBm0&index=23)
+
+- Uses code provided in examples/2-VideoServlet, walks through the test cases.
+
+6. Securely Handling Client Data & Avoiding Injection Attacks (https://www.youtube.com/watch?v=VJIp6xMmV9M&list=PLyUlngzGzkztgTizxM6_zqiw8sRj7vBm0&index=24)
+
+- When we interpret client's data as a command rather than format it into data, which would allow the client to make construct actions on our behalf on our server.
+- An example can be the EchoServlet that we created, if the content type was set to "html", where the client provides 'javascript' code, now that the code is echoed, the code is executed.
+- So, let a client go to a particular website, that redirects the javascript code into the client's browser from an unsafe website. Some other attacks like SQL Injection Attacks will also be seen later.
+- All client data must be validated and segregated, thus always treat it as unsafe data.
