@@ -1,0 +1,2 @@
+org/magnum/mobilecloud/servlet/EchoServlet.java
+ org.magnum.mobilecloud.servlet.EchoServlet
