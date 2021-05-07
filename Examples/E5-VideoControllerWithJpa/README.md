@@ -1,3 +1,5 @@
+## Example 5 - Video Controller with Java Persistence API
+
 ## Running the Video Service Application
 
 To run the application:
@@ -20,6 +22,163 @@ http://localhost:8080/video
 
 To add a test video, run the VideoSvcClientApiTest by right-clicking on it in 
 Eclipse->Run As->JUnit Test (make sure that you run the application first!)
+
+## Understanding the Source Code
+
+The source code contains two packages, main and test.
+
+1. main package (org.magnum.mobilecloud.video)
+
+The main package contains three subpackages, client, controller and repository.
+
+i. video sub-package (org.magnum.mobilecloud.video.repository)
+- video sub-package contains Video.java and VideoRepository.java as its two Classes.
+
+a. Video.java
+
+```java
+//    To define type of objects in database, @Entity annotation of JPA is used.
+@Entity
+public class Video {
+
+   //    To define auto-generated values of an object in database, @Id annotation of JPA is used.
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private long id;
+
+	private String name;
+	private String url;
+	private long duration;
+   
+   ... 
+}
+```
+
+b. VideoRepository.java
+- Using Spring Annotations to automate the boiler-plate code that was previously written.
+```java
+//    Using Spring Annotations to define a CRUD Repository
+@Repository
+public interface VideoRepository extends CrudRepository<Video, Long>{
+
+	// Find all videos with a matching title (e.g., Video.name)
+	public Collection<Video> findByName(String title);
+	
+}
+```
+
+ii. client sub-package (org.magnum.mobilecloud.video.client)
+
+- Client sub-package contains VideoSvcApi interface, same as the last example with Retrofit annotations, acting as the connection between client and server.
+
+```java
+public interface VideoSvcApi {
+	
+	public static final String TITLE_PARAMETER = "title";
+
+	// The path where we expect the VideoSvc to live
+	public static final String VIDEO_SVC_PATH = "/video";
+
+	// The path to search videos by title
+	public static final String VIDEO_TITLE_SEARCH_PATH = VIDEO_SVC_PATH + "/find";
+
+	@GET(VIDEO_SVC_PATH)
+	public Collection<Video> getVideoList();
+	
+	@POST(VIDEO_SVC_PATH)
+	public boolean addVideo(@Body Video v);
+	
+	@GET(VIDEO_TITLE_SEARCH_PATH)
+	public Collection<Video> findByName(@Query(TITLE_PARAMETER) String title);
+	
+}
+```
+
+iii. controller sub-package (org.magnum.mobilecloud.video.controller)
+- To interact with databases, several methods need to be altered.
+```java
+@Controller
+public class VideoSvc implements VideoSvcApi {
+	
+   //    @Autowired to find implementations of VideoRepository by Spring
+	@Autowired
+	private VideoRepository videos;
+
+   //    save() method is used to save the content of request converted to Video Object to database
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.POST)
+	public @ResponseBody boolean addVideo(@RequestBody Video v){
+		 videos.save(v);
+		 return true;
+	}
+	
+	//    findAll() method is used to list all the Video objects stored in the database.
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.GET)
+	public @ResponseBody Collection<Video> getVideoList(){
+		return Lists.newArrayList(videos.findAll());
+	}
+	
+   //    finds videos with toSearchTitle stored in the database.
+   @RequestMapping(value=VideoSvcApi.VIDEO_TITLE_SEARCH_PATH, method=RequestMethod.GET)
+	public @ResponseBody Collection<Video> findByName( @RequestParam(TITLE_PARAMETER) String toSearchTitle) {	
+         	//    Returns List of videos that contain toSearchTitle in their title.
+         	return videos.findByName(toSearchTitle);
+	}
+
+}
+```
+iv. Application.java
+- Enable JPA Repositories in main driver class of the server.
+
+```java
+//    Tell Spring to automatically inject any dependencies that are marked in our classes with @Autowired
+@EnableAutoConfiguration
+
+// Tell Spring to automatically create a JPA implementation of our VideoRepository
+@EnableJpaRepositories(basePackageClasses = VideoRepository.class)
+
+// Tell Spring that this object represents a Configuration for the application
+@Configuration
+
+// Tell Spring to turn on WebMVC (e.g., it should enable the DispatcherServlet so that requests can be routed to our Controllers
+@EnableWebMvc
+
+// Tell Spring to go and scan our controller package (and all sub packages) to find any Controllers or other components that are part of our applciation.
+@ComponentScan
+
+public class Application {
+	
+	// Tell Spring to launch our Application
+	public static void main(String[] args) {
+   
+		SpringApplication.run(Application.class, args);
+	}
+	
+}
+```
+2. test package
+
+- test package contains three sub-packages for testing the controller, integration and video.
+
+i. video test sub-package (org.magnum.mobilecloud.video)
+- Creates a random video, and passes it in JSON Format when method called, same as last example.
+```java
+public class TestData {
+
+	// 	Jackson ObjectMapper which will help in converting from Object to JSON
+	private static final ObjectMapper objectMapper = new ObjectMapper();
+	
+	// 	Constructs a random video using UUID Class.
+	public static Video randomVideo() {
+		... 
+	}
+	
+	//	Convert an object to JSON using Jackson's ObjectMapper
+	public static String toJson(Object o) throws Exception{
+		... 
+	}
+}
+```
+
 
 ## What to Pay Attention to
 
