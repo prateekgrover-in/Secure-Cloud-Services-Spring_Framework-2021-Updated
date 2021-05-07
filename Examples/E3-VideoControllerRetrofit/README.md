@@ -1,3 +1,116 @@
+### Example 3 : Video Controller with Retrofit
+
+#### Understanding the Source Code
+
+The source code can be divided into the main package, and the test package.
+
+1. main package (org.magnum.mobilecloud.video)
+
+The main package contains subpackages for client and controller.
+
+i. controller package (org.magnum.mobilecloud.video.controller)
+
+Controller Package contains two files, Video.java and VideoSvc.java
+
+a. Video.java
+
+- Defines a video class containing private variables name, url and Id, and sets up getters and setters for these parameters.
+
+```java
+public class Video {
+
+	private String name;
+	private String url;
+	private long duration;
+
+   //    An empty constructor is always initialized
+	public Video(){}
+	
+   //    A constructor with all the parameters.
+	public Video(String name, String url, long duration) {
+         ... ;
+	}
+```
+
+- Next, two methods hashCode() and equals() are overriden, with the help of Google's Library (com.google.common.base.Objects) 
+
+```java
+   //    Two Videos will generate the same hashcode if they have exactly the same values for their name, url, and duration.
+   
+   @Override
+	public int hashCode() {
+         ...
+	}
+
+	//    Two Videos are considered equal if they have exactly the same values for their name, url, and duration.
+	
+   @Override
+	public boolean equals(Object obj) {
+		   ... ;
+	}
+```
+b. VideoSvc.java
+
+- Implements the Controller, and routs GET and POST Request to its specific methods.
+- 
+```java
+//   Annotation @Controller Tells Spring that this is a controller class.
+@Controller
+
+public class VideoSvc implements VideoSvcApi {
+	
+	//   List that stores the videos that are sent to the server by the client.
+	private List<Video> videos = new CopyOnWriteArrayList<Video>();
+
+   //    Maps all POST Requests to /video path to this method.
+	@RequestMapping(value=VIDEO_SVC_PATH, method=RequestMethod.POST)
+   
+   //    Converts boolean return type to JSON that can be returned in the body of Response
+   //    Converts JSON Format of body of Request into a Video Object.
+	public @ResponseBody boolean addVideo(@RequestBody Video v){
+   
+      //    Adds video to list of Videos stored in memory.
+		return videos.add(v);
+	}
+	
+   //    Maps all GET Requests to /video path to this method.
+	@RequestMapping(value=VIDEO_SVC_PATH, method=RequestMethod.GET)
+   
+	//    Converts List<Video> return type to JSON that can be returned in the body of Response
+   public @ResponseBody List<Video> getVideoList(){
+		
+      //    Returns list of Videos stored in memory.
+      return videos;
+	}
+
+}
+```
+
+ii. client package (org.magnum.mobilecloud.video.client)
+
+
+
+
+
+2. test package
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Running the Video Service Application
 
 To run the application:
