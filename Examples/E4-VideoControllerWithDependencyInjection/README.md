@@ -31,7 +31,7 @@ The source code can be divided into the main package, and the test package.
 
 The main package contains 3 sub-packages, client, controller and repository.
 
-i. client sub-package (org.magnum.mobilecloud.video.client)
+### i. client sub-package (org.magnum.mobilecloud.video.client)
 
 ```java
 
@@ -58,7 +58,7 @@ public interface VideoSvcApi {
    
 ```
 
-ii. controller sub-package (org.magnum.mobilecloud.video.controller)
+### ii. controller sub-package (org.magnum.mobilecloud.video.controller)
 
 a. Video.java
 - Video Class remains the same as last example.
@@ -108,7 +108,7 @@ public class Application {
 }
 ```
 
-iii.  repository subpackage (org.magnum.mobilecloud.video.repository)
+### iii.  repository subpackage (org.magnum.mobilecloud.video.repository)
 
 This subpackage contains a VideoRepository interface and its two separate implementations.
 
@@ -176,7 +176,7 @@ public class AllowsDuplicatesVideoRepository implements VideoRepository {
 
 test package contains three sub-packages for testing the controller, integration and video.
 
-i. video test sub-package (org.magnum.mobilecloud.video)
+### i. video test sub-package (org.magnum.mobilecloud.video)
 - Creates a random video, and passes it in JSON Format when method called.
 ```java
 public class TestData {
@@ -203,7 +203,7 @@ public class TestData {
 }
 ```
 
-ii. controller test sub-package  (org.magnum.mobilecloud.controller.test)
+### ii. controller test sub-package  (org.magnum.mobilecloud.controller.test)
 - Takes random video from video sub-package, and tries adding it and viewing list of videos.
 ```java
 
@@ -245,7 +245,7 @@ public class VideoSvcTest {
 
 }
 ```
-iii. integration test sub-package
+### iii. integration test sub-package
 
 This subpackage contains two files, VideoSvcClientApiTest.java and VideoSvcIntegrationTest.java
 
@@ -318,6 +318,7 @@ public class VideoSvcIntegrationTest {
 	            			.andReturn();
 	}
 }
+```
 
 ## What to Pay Attention to
 
