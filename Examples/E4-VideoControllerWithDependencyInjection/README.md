@@ -70,22 +70,19 @@ b. VideoSvc.java
 @Controller
 public class VideoSvc implements VideoSvcApi {
 	
-   //    VideoRepository is a dependency defined by us, that Spring will find an implementation for as we used the @Autowired Annotation
-   //    Spring will look for a method with @Bean annotation in the package.
+   	//    VideoRepository is a dependency defined by us, that Spring will find an implementation for as we used the @Autowired Annotation
+   	//    Spring will look for a method with @Bean annotation in the package.
 	@Autowired
 	private VideoRepository videos;
 
 	...
-	
-   //    Routs requests with GET requests to /video/find to this method.
-	@RequestMapping(value=VideoSvcApi.VIDEO_TITLE_SEARCH_PATH, method=RequestMethod.GET)
    
-   //    Converts Return type of Collection of Videos to JSON Response Body
-   //    "TITLE_PARAMETER" in the Request Query is used as toSearchTitle parameter in the method
+   	//    Converts Return type of Collection of Videos to JSON Response Body
+   	//    "TITLE_PARAMETER" in the Request Query is used as toSearchTitle parameter in the method
 	public @ResponseBody Collection<Video> findByTitle( @RequestParam(TITLE_PARAMETER) String toSearchTitle) {
 		
-         //    Returns List of videos that contain toSearchTitle in their title.
-         return videos.findByTitle(toSearchTitle);
+         	//    Returns List of videos that contain toSearchTitle in their title.
+         	return videos.findByTitle(toSearchTitle);
 	}
 
 }
@@ -102,7 +99,7 @@ public class Application {
 
    ...
    
-   //    Inject the Object of NoDuplicatesVideoRepository Class to the Dependency of Controller which has @Autowired annotation.
+   	//    Inject the Object of NoDuplicatesVideoRepository Class to the Dependency of Controller which has @Autowired annotation.
 	@Bean
 	public VideoRepository videoRepository(){
 		   return new NoDuplicatesVideoRepository();
@@ -113,13 +110,142 @@ public class Application {
 
 iii.  repository subpackage (org.magnum.mobilecloud.video.repository)
 
+This subpackage contains a VideoRepository interface and its two separate implementations.
 
+a. VideoRepository.java
+```java
+public interface VideoRepository {
 
+	// Add a video
+	public boolean addVideo(Video v);
+	
+	// Get the videos that have been added so far
+	public Collection<Video> getVideos();
+	
+	// Find all videos with a matching title (e.g., Video.name)
+	public Collection<Video> findByTitle(String title);
+	
+}
+```
+- The two implementations allow and do not allow Duplicates in their Repositories respectively.
 
+b. NoDuplicatesVideoRepository.java
+```java
+public class NoDuplicatesVideoRepository implements VideoRepository {
 
+	// Set will only store one instance of each duplicate, (checks duplication via .equals() function)
+	private Set<Video> videoSet = Collections.newSetFromMap(new ConcurrentHashMap<Video, Boolean>());
+	
+	@Override
+	public boolean addVideo(Video v) {
+		return videoSet.add(v);
+	}
 
+	@Override
+	public Collection<Video> getVideos() {
+		return videoSet;
+	}
 
+	// Search the list of videos for ones with matching titles.
+	@Override
+	public Collection<Video> findByTitle(String toSearchTitle) {
+		Set<Video> matches = new HashSet<>();
+		for(Video video : videoSet){
+			if(video.getName().equals(toSearchTitle)){
+				matches.add(video);
+			}
+		}
+		return matches;
+	}
 
+}
+```
+
+c. AllowsDuplicatesVideoRepository.java
+```java
+public class AllowsDuplicatesVideoRepository implements VideoRepository {
+
+	// Lists allow duplicate objects that are .equals() to each other
+	private List<Video> videoList = new CopyOnWriteArrayList<Video>();
+	
+	...
+	
+```
+
+2. test package (org.magnum.mobilecloud.* .test)
+
+test package contains three sub-packages for testing the controller, integration and video.
+
+i. controller test package  (org.magnum.mobilecloud.controller.test)
+```java
+/**
+ * 
+ * This test directly invokes the methods on VideoSvc to test them. The test
+ * uses the Mockito library to inject a mock VideoRepository through dependency
+ * injection into the VideoSvc object.
+ * 
+ * To run this test, right-click on it in Eclipse and select
+ * "Run As"->"JUnit Test"
+ * 
+ * Pay attention to how this test that actually uses HTTP and the test that just
+ * directly makes method calls on a VideoSvc object are essentially identical.
+ * All that changes is the setup of the videoService variable. Yes, this could
+ * be refactored to eliminate code duplication...but the goal was to show how
+ * much Retrofit simplifies interaction with our service!
+ * 
+ * @author jules
+ *
+ */
+public class VideoSvcTest {
+
+	// This tells Mockito to create a mock object for the VideoRepository
+	// implementation that will be used for this test. A mock object is a
+	// "fake" implementation of the interface that we can script to provide
+	// specific outputs in response to different inputs.
+	@Mock
+	private VideoRepository videoRepository;
+
+	// Automatically inject the mock VideoRepository into the VideoSvc
+	// object
+	@InjectMocks
+	private VideoSvc videoService;
+
+	private Video video = TestData.randomVideo();
+
+	@Before
+	public void setUp() {
+		// Process mock annotations and inject the mock VideoRepository
+		// into the VideoSvc object
+		MockitoAnnotations.initMocks(this);
+
+		// Tell the mock VideoRepository implementation to always return
+		// true when its addVideo() method is called
+		when(videoRepository.addVideo(any(Video.class))).thenReturn(true);
+		
+		// Tell the mock VideoRepository to always return the random Video
+		// object that we create above when its getVideos() method is called
+		when(videoRepository.getVideos()).thenReturn(Arrays.asList(video));
+	}
+	
+	
+	// Yes, this test doesn't do much because VideoSvc is
+	// essentially delegating to VideoRepository. The goal is to
+	// provide a simple example of testing controllers with mock
+	// objects and dependency injection.
+	@Test
+	public void testVideoAddAndList() throws Exception {
+
+		// Ensure that calling addVideo works
+		boolean ok = videoService.addVideo(video);
+		assertTrue(ok);
+
+		// Make sure that the Video we added is in the list
+		Collection<Video> videos = videoService.getVideoList();
+		assertTrue(videos.contains(video));
+	}
+
+}
+```
 
 ## What to Pay Attention to
 
