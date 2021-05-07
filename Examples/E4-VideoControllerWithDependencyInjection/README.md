@@ -1,6 +1,6 @@
-### Example 4 : Video Controller with Dependency Injection
+# Example 4 : Video Controller with Dependency Injection
 
-#### Running the Video Service Application
+## Running the Video Service Application
 
 To run the application:
 
@@ -13,7 +13,7 @@ Open the Eclipse Debug Perspective (Window->Open Perspective->Debug), right-clic
 the application in the "Debug" view (if it isn't open, Window->Show View->Debug) and
 select Terminate
 
-#### Accessing the Service
+## Accessing the Service
 
 To view a list of the videos that have been added, open your browser to the following
 URL:
@@ -23,11 +23,11 @@ http://localhost:8080/video
 To add a test video, run the VideoSvcClientApiTest by right-clicking on it in 
 Eclipse->Run As->JUnit Test (make sure that you run the application first!)
 
-#### Understanding the Source Code
+## Understanding the Source Code
 
 The source code can be divided into the main package, and the test package.
 
-1. main package (org.magnum.mobilecloud.video)
+## main package (org.magnum.mobilecloud.video)
 
 The main package contains 3 sub-packages, client, controller and repository.
 
@@ -172,97 +172,157 @@ public class AllowsDuplicatesVideoRepository implements VideoRepository {
 	
 ```
 
-2. test package (org.magnum.mobilecloud.* .test)
+## test package (org.magnum.mobilecloud.* .test)
 
 test package contains three sub-packages for testing the controller, integration and video.
 
-i. controller test package  (org.magnum.mobilecloud.controller.test)
+i. video test sub-package (org.magnum.mobilecloud.video)
+- Creates a random video, and passes it in JSON Format when method called.
 ```java
-/**
- * 
- * This test directly invokes the methods on VideoSvc to test them. The test
- * uses the Mockito library to inject a mock VideoRepository through dependency
- * injection into the VideoSvc object.
- * 
- * To run this test, right-click on it in Eclipse and select
- * "Run As"->"JUnit Test"
- * 
- * Pay attention to how this test that actually uses HTTP and the test that just
- * directly makes method calls on a VideoSvc object are essentially identical.
- * All that changes is the setup of the videoService variable. Yes, this could
- * be refactored to eliminate code duplication...but the goal was to show how
- * much Retrofit simplifies interaction with our service!
- * 
- * @author jules
- *
- */
+public class TestData {
+
+	// 	Jackson ObjectMapper which will help in converting from Object to JSON
+	private static final ObjectMapper objectMapper = new ObjectMapper();
+	
+	// 	Constructs a random video using UUID Class.
+	public static Video randomVideo() {
+		// Information about the video
+		// Construct a random identifier using Java's UUID class
+		String id = UUID.randomUUID().toString();
+		
+		String title = "Video-" + id;
+		String url = "http://coursera.org/some/video-" + id;
+		long duration = 60 * (int)Math.rint(Math.random() * 60) * 1000; // random time up to 1hr
+		return new Video(title, url, duration);
+	}
+	
+	//	Convert an object to JSON using Jackson's ObjectMapper
+	public static String toJson(Object o) throws Exception{
+		return objectMapper.writeValueAsString(o);
+	}
+}
+```
+
+ii. controller test sub-package  (org.magnum.mobilecloud.controller.test)
+- Takes random video from video sub-package, and tries adding it and viewing list of videos.
+```java
+
+// 	Test uses Mockito Library to inject VideoRepository through dependency injection into VideoSvc
 public class VideoSvcTest {
 
-	// This tells Mockito to create a mock object for the VideoRepository
-	// implementation that will be used for this test. A mock object is a
-	// "fake" implementation of the interface that we can script to provide
-	// specific outputs in response to different inputs.
+	// 	@Mock Annotation tells Mockito to create a mock object for VideoRepository.
+	//	Mock oobjects are 'fake' implementations, that can be scripted to provide specific outputs in response to specific inputs.
 	@Mock
 	private VideoRepository videoRepository;
 
-	// Automatically inject the mock VideoRepository into the VideoSvc
-	// object
+	// 	Automatically inject the mock VideoRepository into the VideoSvc object
 	@InjectMocks
 	private VideoSvc videoService;
 
+	// 	Takes random video, from video test sub-package
 	private Video video = TestData.randomVideo();
 
+	//	Code inside Before is implemented before each test case.
 	@Before
+	
 	public void setUp() {
-		// Process mock annotations and inject the mock VideoRepository
-		// into the VideoSvc object
+		// 	Process mock annotations and inject the mock VideoRepository into the VideoSvc object
 		MockitoAnnotations.initMocks(this);
 
-		// Tell the mock VideoRepository implementation to always return
-		// true when its addVideo() method is called
+		// 	Tell the mock VideoRepository implementation to always return true when its addVideo() method is called
 		when(videoRepository.addVideo(any(Video.class))).thenReturn(true);
 		
-		// Tell the mock VideoRepository to always return the random Video
-		// object that we create above when its getVideos() method is called
+		// 	Tell the mock VideoRepository to always return the random Video object that we create above when its getVideos() method is called
 		when(videoRepository.getVideos()).thenReturn(Arrays.asList(video));
 	}
 	
-	
-	// Yes, this test doesn't do much because VideoSvc is
-	// essentially delegating to VideoRepository. The goal is to
-	// provide a simple example of testing controllers with mock
-	// objects and dependency injection.
+	//	This Test simulates a POST Request to add a new Video, and then simulates a GET Request to view the list of videos.
 	@Test
 	public void testVideoAddAndList() throws Exception {
-
-		// Ensure that calling addVideo works
-		boolean ok = videoService.addVideo(video);
-		assertTrue(ok);
-
-		// Make sure that the Video we added is in the list
-		Collection<Video> videos = videoService.getVideoList();
-		assertTrue(videos.contains(video));
+		...
+		//	Same as last example.
 	}
 
 }
 ```
+iii. integration test sub-package
+
+This subpackage contains two files, VideoSvcClientApiTest.java and VideoSvcIntegrationTest.java
+
+a. VideoSvcClientApiTest.java
+```java
+public class VideoSvcClientApiTest {
+
+	//	Defining the URL for Testing the Application
+	//	Using Retrofit library to create an object from the VideoSvcApi interface that can process HTTP Requests
+	
+	// 	Initializes a random video from video sub-package
+	private Video video = TestData.randomVideo();
+	
+	//	This Test send POST Request from the API Created to add a new Video, and then sends a GET Request to view the list of videos.
+	@Test
+	public void testVideoAddAndList() throws Exception {
+		//	Same function as Controller Test.
+	}
+}
+```
+
+b. VideoSvcIntegrationTest.java
+```java
+// 	Tell Spring to setup a web container configuration for testing
+@WebAppConfiguration
+
+// 	Tell JUnit to run using Spring's special JUnit runner
+@RunWith(SpringJUnit4ClassRunner.class)
+
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
+
+// 	This is where you tell Spring the Application or Configuration object to use
+@ContextConfiguration(classes = Application.class, loader = SpringBootContextLoader.class)
+
+public class VideoSvcIntegrationTest {
+
+	// 	Ask Spring to automatically construct and inject your VideoSvc into the test
+	@Autowired
+	private VideoSvc videoService;
+
+	// 	This is the mock interface to our application that we will use to send mock HTTP requests
+	private MockMvc mockMvc;
+
+	// 	Executed before each test
+	@Before
+	public void setUp() {
+		// Setup Spring test in standalone mode with our VideoSvc object that it built
+		mockMvc = MockMvcBuilders.standaloneSetup(videoService).build();
+	}
+	
+	//	Similar to last example, we will try to simulate GET and POST requests here using Mockito
+	@Test
+	public void testVideoAddAndList() throws Exception {
+	
+		//	To test our servers, we generate a Random Video from video test sub-package, and its JSON.
+		Video video = TestData.randomVideo();
+		String videoJson = TestData.toJson(video);
+		
+		// 	Send a request that should invoke VideoSvc.addVideo(Video v) and check that the request succeeded
+		mockMvc.perform(post(VideoSvcApi.VIDEO_SVC_PATH)
+					.contentType(MediaType.APPLICATION_JSON)
+	            			.content(videoJson))
+	            			.andExpect(status().isOk())
+	            			.andReturn();
+		
+		// 	Send a request that should invoke VideoSvc.getVideos() and check that the Video object added above is in list of returned videos.
+		mockMvc.perform(get(VideoSvcApi.VIDEO_SVC_PATH))
+	            			.andExpect(status().isOk())
+	            			.andExpect(content().string(containsString(videoJson)))
+	            			.andReturn();
+	}
+}
 
 ## What to Pay Attention to
 
 In this version of the VideoSvc application, we have added dependency injection:
 
-1. The "videos" member variable of VideoSvc is not explicitly initialized in the VideoSvc
-   class. Instead, this member variable is marked with @Autowired. Spring automatically
-   connects the value for this member variable to whatever type of VideoRepository we
-   construct in our @Bean annotated Application.videoRepository() method. As long as
-   your Application class has exactly one @Bean annotated method that returns an instance
-   of a particular interface, Spring can automatically find every occurrence where you have
-   asked for that interface to be @Autowired and inject the value you return from your
-   method into those objects. 
-2. This version updates the VideoSvcTest to show how mock objects can be injected into
-   @Autowired member variables. In this case, a test mock VideoRepository (constructed
-   using the Mockito framework) is injected into the "videos" member variable of VideoSvc.
-3. The tests add a new integration test that fully "wires" your controller using dependency
-   injection and sends mock HTTP requests to it. This test helps ensure that your Application
-   is properly configuring all of the @Autowired values that are needed in your application
-   and that they all work together correctly.
+1. The "videos" member variable of VideoSvc is not explicitly initialized in the VideoSvc class. Instead, this member variable is marked with @Autowired. Spring automatically connects the value for this member variable to whatever type of VideoRepository we construct in our @Bean annotated Application.videoRepository() method. As long as your Application class has exactly one @Bean annotated method that returns an instance of a particular interface, Spring can automatically find every occurrence where you have asked for that interface to be @Autowired and inject the value you return from your method into those objects. 
+2. This version updates the VideoSvcTest to show how mock objects can be injected into @Autowired member variables. In this case, a test mock VideoRepository (constructed   using the Mockito framework) is injected into the "videos" member variable of VideoSvc.
+3. The tests add a new integration test that fully "wires" your controller using dependency injection and sends mock HTTP requests to it. This test helps ensure that your Application is properly configuring all of the @Autowired values that are needed in your application and that they all work together correctly.
