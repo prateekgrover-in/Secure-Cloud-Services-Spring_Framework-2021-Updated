@@ -23,10 +23,10 @@ public class Video {
 	private String url;
 	private long duration;
 
-   //    An empty constructor is always initialized
+   	//    An empty constructor is always initialized
 	public Video(){}
 	
-   //    A constructor with all the parameters.
+   	//    A constructor with all the parameters.
 	public Video(String name, String url, long duration) {
          ... ;
 	}
@@ -36,14 +36,12 @@ public class Video {
 
 ```java
    //    Two Videos will generate the same hashcode if they have exactly the same values for their name, url, and duration.
-   
    @Override
 	public int hashCode() {
          ...
 	}
 
-	//    Two Videos are considered equal if they have exactly the same values for their name, url, and duration.
-	
+   //    Two Videos are considered equal if they have exactly the same values for their name, url, and duration.	
    @Override
 	public boolean equals(Object obj) {
 		   ... ;
@@ -62,25 +60,25 @@ public class VideoSvc implements VideoSvcApi {
 	//   List that stores the videos that are sent to the server by the client.
 	private List<Video> videos = new CopyOnWriteArrayList<Video>();
 
-   //    Maps all POST Requests to /video path to this method.
+   	//    Maps all POST Requests to /video path to this method.
 	@RequestMapping(value=VIDEO_SVC_PATH, method=RequestMethod.POST)
    
-   //    Converts boolean return type to JSON that can be returned in the body of Response
-   //    Converts JSON Format of body of Request into a Video Object.
+   	//    Converts boolean return type to JSON that can be returned in the body of Response
+   	//    Converts JSON Format of body of Request into a Video Object.
 	public @ResponseBody boolean addVideo(@RequestBody Video v){
    
-      //    Adds video to list of Videos stored in memory.
+      		//    Adds video to list of Videos stored in memory.
 		return videos.add(v);
 	}
 	
-   //    Maps all GET Requests to /video path to this method.
+   	//    Maps all GET Requests to /video path to this method.
 	@RequestMapping(value=VIDEO_SVC_PATH, method=RequestMethod.GET)
    
 	//    Converts List<Video> return type to JSON that can be returned in the body of Response
-   public @ResponseBody List<Video> getVideoList(){
+   	public @ResponseBody List<Video> getVideoList(){
 		
-      //    Returns list of Videos stored in memory.
-      return videos;
+      		//    Returns list of Videos stored in memory.
+      		return videos;
 	}
 
 }
