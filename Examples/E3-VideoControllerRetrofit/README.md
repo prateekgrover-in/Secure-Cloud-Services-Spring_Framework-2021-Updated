@@ -13,7 +13,7 @@ Open the Eclipse Debug Perspective (Window->Open Perspective->Debug), right-clic
 the application in the "Debug" view (if it isn't open, Window->Show View->Debug) and
 select Terminate
 
-## Accessing the Service
+#### Accessing the Service
 
 To view a list of the videos that have been added, open your browser to the following
 URL:
